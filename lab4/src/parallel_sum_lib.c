@@ -33,7 +33,7 @@ long long parallel_sum(int *array, int array_size, int threads_num) {
 
         int result = pthread_create(&threads[i], NULL, thread_func, &args[i]);
         if (result != 0) {
-            thread_func(&args[i]); // Если поток не создался, считаем синхронно
+            thread_func(&args[i]); 
         }
     }
 

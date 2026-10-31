@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <signal.h> // Добавлено для signal, kill, SIGALRM, SIGKILL
+#include <signal.h> 
 
 #include <sys/time.h>
 #include <sys/types.h>
@@ -161,7 +161,6 @@ int main(int argc, char **argv) {
     if (child_pid >= 0) {
       active_child_processes += 1;
       if (child_pid == 0) {
-        // В дочернем процессе не нужен обработчик alarm
         if (timeout_sec > 0) {
             signal(SIGALRM, SIG_DFL); 
         }
@@ -179,7 +178,6 @@ int main(int argc, char **argv) {
           if (!f) {
             perror("fopen");
             free(array);
-            // free(child_pids); // В потомке лучше не трогать общую память без нужды, но здесь exit
             exit(1);
           }
           fprintf(f, "%d %d\n", result.min, result.max);
@@ -201,7 +199,7 @@ int main(int argc, char **argv) {
         }
 
         free(array);
-        exit(0); // Используем exit вместо return в потомке
+        exit(0); 
       } else {
         // Родитель сохраняет PID
         child_pids[i] = child_pid;
@@ -224,16 +222,14 @@ int main(int argc, char **argv) {
     } else if (pid == 0) {
       // Дети еще работают.
       // Если сработал таймаут, обработчик уже убил их.
-      // Если нет, просто ждем немного (busy wait или sleep)
       if (timeout_occurred) {
           // Если таймаут был, но дети все еще не собраны waitpid (заняло время),
           // продолжаем цикл, чтобы собрать зомби.
           usleep(1000); 
       } else {
-          usleep(1000); // Небольшая задержка, чтобы не грузить CPU на 100%
+          usleep(1000);
       }
     } else {
-      // Ошибка waitpid или больше нет детей
       break;
     }
   }
